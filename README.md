@@ -1,4 +1,4 @@
-# Projet-Dev
+# SevenWonders projet
 # Jeu : 7Wonders
 
 # Le projet :
