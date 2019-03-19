@@ -1,13 +1,13 @@
-// Proposition de 1ère itération
+// Proposition de 1ï¿½re itï¿½ration
 
-En tant que joueur, j'ai besoin de cartes.
---> Faire une connexion serveur avec seulement 1 joueur recevant 7 cartes.
---> Possibilité de jouer une 1ère carte.
+En tant que joueur, j'ai besoin de cards.
+--> Faire une connexion serveur avec seulement 1 joueur recevant 7 cards.
+--> Possibilitï¿½ de jouer une 1ï¿½re card.
 
-Choix des cartes:
+Choix des cards:
 --> Ne pas tout faire pour le moment.
---> Distribuer des cartes sans caractéristiques (ressources, argent, etc...)
---> Un seul âge pour le moment.
+--> Distribuer des cards sans caractï¿½ristiques (ressources, argent, etc...)
+--> Un seul ï¿½ge pour le moment.
 
-Choix des merveilles:
---> Une seule merveille et donc la même pour tout le monde.
+Choix des wonders:
+--> Une seule wonder et donc la mï¿½me pour tout le monde.

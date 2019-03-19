@@ -1,6 +1,6 @@
 package donnees;
 
-public class Carte {
+public class Card {
 
     private String name;
 
@@ -12,8 +12,8 @@ public class Carte {
         this.name = name;
     }
 
-    public Carte() {}
-    public Carte(String name) {
+    public Card() {}
+    public Card(String name) {
         this.name = name;
     }
 
@@ -23,8 +23,8 @@ public class Carte {
     }
 
     public boolean equals(Object o) {
-        if ((o != null) && (o instanceof Carte)) {
-            return getName().equals(((Carte) o).getName());
+        if ((o != null) && (o instanceof Card)) {
+            return getName().equals(((Card) o).getName());
         }
         else return false;
     }

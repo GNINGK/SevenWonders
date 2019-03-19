@@ -14,7 +14,7 @@
 	<version>1.0</version>
 	
 	<build>
-        <sourceDirectory>src/main/java</sourceDirectory>  
+        <sourceDirectory>src/hand/java</sourceDirectory>
 
         <plugins>
 
@@ -31,7 +31,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>joueur.Joueur</mainClass>
+                    <mainClass>joueur.Player</mainClass>
                 </configuration>
             </plugin>
 

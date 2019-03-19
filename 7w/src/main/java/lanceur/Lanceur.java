@@ -1,7 +1,7 @@
 package lanceur;
 
 import config.CONFIG;
-import joueur.Joueur;
+import joueur.Player;
 import moteur.Partie;
 
 public class Lanceur {
@@ -9,17 +9,17 @@ public class Lanceur {
 
     public static final void main(String  [] args) {
         Partie p = new Partie();
-        Joueur [] joueurs = new Joueur[CONFIG.NB_JOUEURS];
+        Player[] players = new Player[CONFIG.NB_JOUEURS];
 
-        // création des 4 joueurs
+        // création des 4 players
         for(int i = 0 ; i < CONFIG.NB_JOUEURS; i++) {
-            joueurs[i] = new Joueur("Joueur"+(i+1));
+            players[i] = new Player("Player"+(i+1));
         }
 
         // démarrage du jeu
-        p.démarrer();
+        p.start();
         for(int i = 0 ; i < CONFIG.NB_JOUEURS; i++) {
-            joueurs[i].démarrer();
+            players[i].start();
         }
     }
 }

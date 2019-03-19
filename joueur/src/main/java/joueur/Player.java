@@ -2,9 +2,9 @@ package joueur;
 
 import config.CONFIG;
 import config.MESSAGES;
-import donnees.Carte;
-import donnees.Main;
-import donnees.Merveille;
+import donnees.Card;
+import donnees.Hand;
+import donnees.Wonder;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -13,18 +13,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.Random;
 
-public class Joueur {
+public class Player {
 
 
-    private String nom;
+    private String name;
     Socket connexion ;
-    private Merveille merveille;
+    private Wonder wonder;
 
-    public Joueur(String un_joueur) {
-        setNom(un_joueur);
+    public Player(String un_joueur) {
+        setName(un_joueur);
 
-        System.out.println(nom +" > creation");
+        System.out.println(name +" > creation");
         try {
             // préparation de la connexion
             connexion = IO.socket("http://" + CONFIG.IP + ":" + CONFIG.PORT);
@@ -34,30 +35,30 @@ public class Joueur {
             connexion.on("connect", new Emitter.Listener() {
                 @Override
                 public void call(Object... objects) {
-                    System.out.println(getNom() + " > connecte");
-                    System.out.println(getNom()+" > envoi de mon nom");
-                    connexion.emit(MESSAGES.MON_NOM, getNom());
+                    System.out.println(getName() + " > connecte");
+                    System.out.println(getName()+" > envoi de mon name");
+                    connexion.emit(MESSAGES.MON_NOM, getName());
                 }
             });
 
             
-            // réception de la merveille
+            // réception de la wonder
             connexion.on(MESSAGES.ENVOI_DE_MERVEILLE, new Emitter.Listener() {
                 @Override
                 public void call(Object... objects) {
                     // réception du JSON
-                    JSONObject merveilleJSON = (JSONObject)objects[0];
+                    JSONObject wonderJSON = (JSONObject)objects[0];
                     try {
-                        // conversion du JSON en Merveille
-                        String n = merveilleJSON.getString("nom");
+                        // conversion du JSON en Wonder
+                        String n = wonderJSON.getString("name");
                         // les merveilles ont toutes une ressource vide, pour illustrer avec un objet avec plus qu'une seule propriété
-                        String ressource = merveilleJSON.getString("ressource");
-                        Merveille m = new Merveille(n);
+                        String ressource = wonderJSON.getString("ressource");
+                        Wonder m = new Wonder(n);
                         m.setRessource(ressource);
 
-                        // mémorisation de la merveille
-                        System.out.println(nom+" > j'ai recu "+m);
-                        setMerveille(m);
+                        // mémorisation de la wonder
+                        System.out.println(name +" > j'ai recu "+m);
+                        setWonder(m);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -69,21 +70,21 @@ public class Joueur {
                 @Override
                 public void call(Object... objects) {
                     // réception de l'objet JSON : une main
-                    JSONObject mainJSON = (JSONObject)objects[0];
+                    JSONObject handJSON = (JSONObject)objects[0];
                     try {
-                        Main m = new Main();
+                        Hand m = new Hand();
                         // la main ne contient qu'une liste de carte, c'est un JSONArray
-                        JSONArray cartesJSON = mainJSON.getJSONArray("cartes");
+                        JSONArray cartesJSON = handJSON.getJSONArray("cards");
                         // on recrée chaque carte
                         for(int j = 0 ; j < cartesJSON.length(); j++) {
                             JSONObject carteJSON = (JSONObject) cartesJSON.get(j);
-                            Carte c = new Carte(carteJSON.getString("name"));
+                            Card c = new Card(carteJSON.getString("name"));
                             m.ajouterCarte(c);
                         }
-                        System.out.println(nom+" > j'ai recu "+m);
+                        System.out.println(name +" > I received " + m);
 
                         // le joueur a reçu, il joue
-                        jouer(m);
+                        play(m);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -97,43 +98,38 @@ public class Joueur {
     }
 
 
-    private void jouer(Main m) {
-        // ne fonctionne pas dans Android
-        JSONObject pieceJointe = new JSONObject(m.getCartes().get(0)) ;
+    private void play(Hand m) {
+        Random r = new Random();
+        int cardIndex = r.nextInt(5);
+        JSONObject pieceJointe = new JSONObject(m.getCards().get(cardIndex)) ;
 
-        // dans Android, il faudrait faire :
-        // JSONObject pieceJointe = new JSONObject();
-        // pieceJointe.put("name", m.getCartes().get(0).getName());
-        // et il faudrait faire cela entre try / catch
-
-        System.out.println(nom + " > je joue "+m.getCartes().get(0));
+        System.out.println(name + " > Play "+m.getCards().get(cardIndex));
         connexion.emit(MESSAGES.JE_JOUE, pieceJointe);
     }
 
-    public void démarrer() {
-        // connexion effective
+    public void start() {
         if (connexion != null) connexion.connect();
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getNom() {
-        return nom;
+    public String getName() {
+        return name;
     }
 
 
     public static final void main(String  [] args) {
-        Joueur j = new Joueur("toto");
-        j.démarrer();
+        Player p = new Player("toto");
+        p.start();
     }
 
-    public void setMerveille(Merveille merveille) {
-        this.merveille = merveille;
+    public void setWonder(Wonder wonder) {
+        this.wonder = wonder;
     }
 
-    public Merveille getMerveille() {
-        return merveille;
+    public Wonder getWonder() {
+        return wonder;
     }
 }

@@ -1,21 +1,21 @@
-########################### Découpage
+########################### Dï¿½coupage
 
 #####Livraison 1
 Au bout de la livraison 1 :
-----> Cartes définies
-----> Merveilles définies
+----> Cartes dï¿½finies
+----> Merveilles dï¿½finies
 ---->  CLIENT SERVEUR QUI NE MARCHE PAS
 
 
 #####Livraison 2
 
------> Distribuer 7 cartes pour 3 joueurs
+-----> Distribuer 7 cards pour 3 players
 
 
 #####Livraison 3
 
-----> Choix d'une carte et la déposer
-----> Faire tourner la main
+----> Choix d'une card et la dï¿½poser
+----> Faire tourner la hand
 
 
 #####Livraison 4
@@ -26,17 +26,17 @@ Au bout de la livraison 1 :
 #####Livraison 5
 
 ------> Ajout des ressources
-------> Défossage de carte
+------> Dï¿½fossage de card
 
 
 #####Livraison 6
 
-------> Distribution cartes merveilles 
-------> Attribution du plateau merveille
+------> Distribution cards wonders 
+------> Attribution du plateau wonder
 
 
 
 #####Livraison 7
 
------> Construction merveille
------> Construction bâtiments (tous deux en fonction des ressources)
+-----> Construction wonder
+-----> Construction bï¿½timents (tous deux en fonction des ressources)

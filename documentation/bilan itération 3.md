@@ -1,7 +1,7 @@
 ########## Bilan Livraison 3
 
---> Nous avons repris l'exemple donné par le prof pour créer le serveur
---> Les merveilles ont été créés et nommées
---> Les cartes sont créés et nommées
---> Il y a 4 joueurs
---> Un tour de jeu est efectué
+--> Nous avons repris l'exemple donnï¿½ par le prof pour crï¿½er le serveur
+--> Les wonders ont ï¿½tï¿½ crï¿½ï¿½s et nommï¿½es
+--> Les cards sont crï¿½ï¿½s et nommï¿½es
+--> Il y a 4 players
+--> Un tour de jeu est efectuï¿½

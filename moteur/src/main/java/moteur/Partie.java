@@ -8,9 +8,9 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import config.CONFIG;
 import config.MESSAGES;
-import donnees.Carte;
-import donnees.Main;
-import donnees.Merveille;
+import donnees.Card;
+import donnees.Hand;
+import donnees.Wonder;
 
 import java.util.ArrayList;
 
@@ -52,13 +52,14 @@ public class Partie {
         serveur.addEventListener(MESSAGES.MON_NOM, String.class, new DataListener<String>() {
             @Override
             public void onData(SocketIOClient socketIOClient, String s, AckRequest ackRequest) throws Exception {
-                Participant p = retrouveParticipant(socketIOClient);
+                Participant p = findParticipant(socketIOClient);
                 if (p != null) {
-                    p.setNom(s);
-                    System.out.println("serveur > identification de "+p.getNom()+" ("+socketIOClient.getRemoteAddress()+")");
+                    p.setName(s);
+                    System.out.println("server > Identification of " + p.getName() + " (" +
+                            socketIOClient.getRemoteAddress() + ")");
 
-                    if (tousIndentifiés()) {
-                        débuterLeJeu();
+                    if (isEveryoneCheckIn()) {
+                        startGame();
                     }
                 }
             }
@@ -66,16 +67,22 @@ public class Partie {
 
 
         // réception de la carte jouée
-        serveur.addEventListener(MESSAGES.JE_JOUE, Carte.class, new DataListener<Carte>() {
+        serveur.addEventListener(MESSAGES.JE_JOUE, Card.class, new DataListener<Card>() {
             @Override
-            public void onData(SocketIOClient socketIOClient, Carte carte, AckRequest ackRequest) throws Exception {
+            public void onData(SocketIOClient socketIOClient, Card card, AckRequest ackRequest) throws Exception {
                 // retrouver le participant
-                Participant p = retrouveParticipant(socketIOClient);
+                Participant p = findParticipant(socketIOClient);
                 if (p != null) {
-                    System.out.println("serveur > "+p+" a joue "+carte);
-                    // puis lui supprimer de sa main la carte jouée
-                    p.getMain().getCartes().remove(carte);
-                    System.out.println("serveur > il reste a "+p+" les cartes "+p.getMain().getCartes());
+                    System.out.println("server > " + p + " played "+ card);
+                    p.getHand().getCards().remove(card);
+                    System.out.println("server > " + p + " still has : " + p.getHand().getCards());
+
+                    p.setHasPlayed(true);
+
+                    if(hasEveryonePlayed()){
+                        switchHands();
+                        prepareNewTurn();
+                    }
 
                     // etc.
                 }
@@ -83,64 +90,51 @@ public class Partie {
         });
     }
 
-    private void débuterLeJeu() {
-        // création des merveilles, au début de simple nom
-        Merveille[] merveilles = new Merveille[CONFIG.NB_JOUEURS];
+    private void startGame() {
+        // création des wonders, au début de simple nom
+        Wonder[] wonders = new Wonder[CONFIG.NB_JOUEURS];
         
-        merveilles[0] = new Merveille("Babylon");//(name, side)
-		
-
-		merveilles[1] = new Merveille("Rhodes");
-		
-
-		merveilles[2] = new Merveille("Halicarnassus");
-		
-
-		merveilles[3] = new Merveille("Giza");
-
-//		merveilles[4] = new Merveille("Alexandria");
-//
-//
-//		merveilles[5] = new Merveille("Olympia");
-//
-//		
-//		merveilles[6] = new Merveille("Ephesus");
+        wonders[0] = new Wonder("Babylon");//(name, side)
+		wonders[1] = new Wonder("Rhodes");
+		wonders[2] = new Wonder("Halicarnassus");
+		wonders[3] = new Wonder("Giza");
+//		wonders[4] = new Wonder("Alexandria");
+//		wonders[5] = new Wonder("Olympia");
+//		wonders[6] = new Wonder("Ephesus");
 
         for(int i = 0; i < CONFIG.NB_JOUEURS; i++) {
         	
-//           merveilles[i] = new Merveille("merveille"+i);
-        	
             // association joueur - merveille
-            participants.get(i).setMerveille(merveilles[i]);
-            System.out.println("serveur > envoie a "+participants.get(i)+" sa merveille "+merveilles[i]);
+            participants.get(i).setWonder(wonders[i]);
+            System.out.println("server > Send to " + participants.get(i) + " wonder " + wonders[i]);
 
             // envoi de la merveille au joueur
-            participants.get(i).getSocket().sendEvent(MESSAGES.ENVOI_DE_MERVEILLE, merveilles[i]);
+            participants.get(i).getSocket().sendEvent(MESSAGES.ENVOI_DE_MERVEILLE, wonders[i]);
         }
 
         // création des cartes initiales
-        Main[] mains = new Main[CONFIG.NB_JOUEURS];
+        Hand[] hands = new Hand[CONFIG.NB_JOUEURS];
         
         for(int i = 0; i < CONFIG.NB_JOUEURS; i++) {
-            mains[i] = new Main();
+            hands[i] = new Hand();
             for(int j = 0 ; j < 8; j++) {
-                mains[i].ajouterCarte(mains[i].getCartes().get(j));
+                hands[i].ajouterCarte(hands[i].getCards().get(j));
                 
             }
             // association main initiale - joueur
-            participants.get(i).setMain(mains[i]);
+            participants.get(i).setHand(hands[i]);
             // envoi de la main au joueur
-            participants.get(i).getSocket().sendEvent(MESSAGES.ENVOI_DE_MAIN, mains[i]);
+            participants.get(i).getSocket().sendEvent(MESSAGES.ENVOI_DE_MAIN, hands[i]);
 
         }
 
     }
 
-    private boolean tousIndentifiés() {
+    private boolean isEveryoneCheckIn() {
         boolean resultat = true;
         for(Participant p : participants) {
             // pas nom, pas identifié
-            if (p.getNom() == null) {
+            if (p.getName() == null) {
                 resultat = false;
                 break;
             }
@@ -149,8 +143,38 @@ public class Partie {
         return resultat;
     }
 
+    private boolean hasEveryonePlayed() {
+        for(Participant p : participants) {
+            if (!p.hasPlayed()) {
+                return false;
+            }
+        }
 
-    public void démarrer() {
+        return true;
+    }
+
+    private void switchHands(){
+        Hand previousHand = participants.get(0).getHand();
+        for(int i=1; i < participants.size(); i++) {
+            Hand hand = participants.get(i).getHand();
+            participants.get(i).setHand(previousHand);
+            previousHand = hand;
+        }
+        participants.get(0).setHand(previousHand);
+
+        System.out.println("server > Hands have been switched");
+        for(Participant p : participants) {
+            System.out.println("server > " + p.getName() + " received " + p.getHand());
+        }
+    }
+
+    private void prepareNewTurn() {
+        for (Participant p : participants) {
+            p.setHasPlayed(false);
+        }
+    }
+
+    public void start() {
         // démarrage du serveur
         serveur.start();
     }
@@ -161,7 +185,7 @@ public class Partie {
      * @param socketIOClient le client qui vient d'envoyer un message au serveur
      * @return le Participant correspondant à la socketIOClient
      */
-    private Participant retrouveParticipant(SocketIOClient socketIOClient) {
+    private Participant findParticipant(SocketIOClient socketIOClient) {
         Participant p = null;
 
         for(Participant part : participants) {
@@ -177,6 +201,6 @@ public class Partie {
 
     public static final void main(String  [] args) {
         Partie p = new Partie();
-        p.démarrer();
+        p.start();
     }
 }

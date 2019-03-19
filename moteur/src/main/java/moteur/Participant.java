@@ -1,16 +1,17 @@
 package moteur;
 
 import com.corundumstudio.socketio.SocketIOClient;
-import donnees.Main;
-import donnees.Merveille;
+import donnees.Hand;
+import donnees.Wonder;
 
 
 public class Participant {
 
     private SocketIOClient socket;
     private String nom;
-    private Merveille merveille;
-    private Main main;
+    private Wonder wonder;
+    private Hand hand;
+    private boolean hasPlayed;
 
 
     public Participant(SocketIOClient socketIOClient) {
@@ -28,31 +29,35 @@ public class Participant {
 
 
     public String toString() {
-        return "[Joueur "+getNom()+" : "+getSocket().getRemoteAddress()+"]";
+        return "[Joueur "+ getName()+" : "+getSocket().getRemoteAddress()+"]";
     }
 
 
-    public void setNom(String nom) {
+    public void setName(String nom) {
         this.nom = nom;
     }
 
-    public String getNom() {
+    public String getName() {
         return nom;
     }
 
-    public void setMerveille(Merveille merveille) {
-        this.merveille = merveille;
+    public void setWonder(Wonder wonder) {
+        this.wonder = wonder;
     }
 
-    public Merveille getMerveille() {
-        return merveille;
+    public Wonder getWonder() {
+        return wonder;
     }
 
-    public void setMain(Main main) {
-        this.main = main;
+    public void setHand(Hand hand) {
+        this.hand = hand;
     }
 
-    public Main getMain() {
-        return main;
+    public Hand getHand() {
+        return hand;
     }
+
+    public boolean hasPlayed() { return hasPlayed; }
+
+    public void setHasPlayed(boolean hasPlayed) { this.hasPlayed = hasPlayed; }
 }
