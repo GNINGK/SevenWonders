@@ -8,7 +8,7 @@ import donnees.Wonder;
 public class Participant {
 
     private SocketIOClient socket;
-    private String nom;
+    private String name;
     private Wonder wonder;
     private Hand hand;
     private boolean hasPlayed;
@@ -29,16 +29,16 @@ public class Participant {
 
 
     public String toString() {
-        return "[Joueur "+ getName()+" : "+getSocket().getRemoteAddress()+"]";
+        return "[Player "+ getName()+" : "+getSocket().getRemoteAddress()+"]";
     }
 
 
     public void setName(String nom) {
-        this.nom = nom;
+        this.name = nom;
     }
 
     public String getName() {
-        return nom;
+        return name;
     }
 
     public void setWonder(Wonder wonder) {

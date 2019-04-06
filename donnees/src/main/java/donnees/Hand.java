@@ -6,33 +6,20 @@ public class Hand {
 
     private ArrayList<Card> cards;
     
-  //création des cards marrons de l'age 1
+  //creation of brown cards (resource) for 1st age
     Card card1 = new Card("Chantier");
-    
 	Card card2 = new Card("Cavite");
-	
 	Card card3 = new Card("bassin-Argileux");
-	
 	Card card4 = new Card("Filon");
-	
 	Card card5 = new Card("Friche");
-
 	Card card6 = new Card("Excavation");
-	
 	Card card7 = new Card("Fosse-Argileuse");
-	
 	Card card8 = new Card("Exploitation-Forestiere");
-	
 	Card card9 = new Card("Gisement");
-	
 	Card card10 = new Card("Mine");
-	
 	Card card11 = new Card("Scierie");
-
 	Card card12 = new Card("Carriere");
-	
 	Card card13 = new Card("Briqueterie");
-	
 	Card card14 = new Card("Fonderie");
 	
 
@@ -67,19 +54,19 @@ public class Hand {
     }
 
 
-    public void ajouterCarte(Card c) {
+    public void addCard(Card c) {
         getCards().add(c);
     }
 
 
     public String toString()  {
-        String texte = "[";
+        String handStr = "[";
 
-        for(Card c : cards) texte += c +" ; ";
+        for(Card c : cards) handStr += c +" ; ";
 
-        if (texte.length() > 4) texte = texte.substring(0, texte.length()-3);
+        if (handStr.length() > 4) handStr = handStr.substring(0, handStr.length()-3);
 
-        texte += "]";
-        return texte;
+        handStr += "]";
+        return handStr;
     }
 }

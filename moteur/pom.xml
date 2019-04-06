@@ -31,7 +31,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>moteur.Partie</mainClass>
+                    <mainClass>moteur.Game</mainClass>
                 </configuration>
             </plugin>
 

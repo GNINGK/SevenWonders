@@ -14,32 +14,32 @@ import donnees.Wonder;
 
 import java.util.ArrayList;
 
-public class Partie {
-    SocketIOServer serveur;
+public class Game {
+    SocketIOServer server;
     private ArrayList<Participant> participants;
 
 
-    public Partie() {
+    public Game() {
 
-        // création du serveur (peut-être externalisée)
+        // création du server (peut-être externalisée)
         Configuration config = new Configuration();
         config.setHostname(CONFIG.IP);
         config.setPort(CONFIG.PORT);
-        serveur = new SocketIOServer(config);
+        server = new SocketIOServer(config);
 
         // init de la liste des participants
         participants = new ArrayList<>();
 
         // abonnement aux connexions
-        serveur.addConnectListener(new ConnectListener() {
+        server.addConnectListener(new ConnectListener() {
             @Override
             public void onConnect(SocketIOClient socketIOClient) {
-                System.out.println("serveur > connexion de "+socketIOClient.getRemoteAddress());
-                System.out.println("serveur > connexion de "+socketIOClient);
+                System.out.println("server > connexion de "+socketIOClient.getRemoteAddress());
+                System.out.println("server > connexion de "+socketIOClient);
 
                 // mémorisation du participant
                 // ajout d'une limitation sur le nombre de joueur
-                if (participants.size() < CONFIG.NB_JOUEURS) {
+                if (participants.size() < CONFIG.NB_PLAYERS) {
                     Participant p = new Participant(socketIOClient);
                     participants.add(p);
                 }
@@ -49,7 +49,7 @@ public class Partie {
 
 
         // réception de l'identification du joueur
-        serveur.addEventListener(MESSAGES.MON_NOM, String.class, new DataListener<String>() {
+        server.addEventListener(MESSAGES.MY_NAME, String.class, new DataListener<String>() {
             @Override
             public void onData(SocketIOClient socketIOClient, String s, AckRequest ackRequest) throws Exception {
                 Participant p = findParticipant(socketIOClient);
@@ -67,7 +67,7 @@ public class Partie {
 
 
         // réception de la carte jouée
-        serveur.addEventListener(MESSAGES.JE_JOUE, Card.class, new DataListener<Card>() {
+        server.addEventListener(MESSAGES.IM_PLAYING, Card.class, new DataListener<Card>() {
             @Override
             public void onData(SocketIOClient socketIOClient, Card card, AckRequest ackRequest) throws Exception {
                 // retrouver le participant
@@ -82,6 +82,9 @@ public class Partie {
                     if(hasEveryonePlayed()){
                         switchHands();
                         prepareNewTurn();
+                        if (p.getHand().getCards().size() > 0){
+                            launchNewTurn();
+                        }
                     }
 
                     // etc.
@@ -92,7 +95,7 @@ public class Partie {
 
     private void startGame() {
         // création des wonders, au début de simple nom
-        Wonder[] wonders = new Wonder[CONFIG.NB_JOUEURS];
+        Wonder[] wonders = new Wonder[CONFIG.NB_PLAYERS];
         
         wonders[0] = new Wonder("Babylon");//(name, side)
 		wonders[1] = new Wonder("Rhodes");
@@ -102,29 +105,29 @@ public class Partie {
 //		wonders[5] = new Wonder("Olympia");
 //		wonders[6] = new Wonder("Ephesus");
 
-        for(int i = 0; i < CONFIG.NB_JOUEURS; i++) {
+        for(int i = 0; i < participants.size(); i++) {
         	
             // association joueur - merveille
             participants.get(i).setWonder(wonders[i]);
             System.out.println("server > Send to " + participants.get(i) + " wonder " + wonders[i]);
 
             // envoi de la merveille au joueur
-            participants.get(i).getSocket().sendEvent(MESSAGES.ENVOI_DE_MERVEILLE, wonders[i]);
+            participants.get(i).getSocket().sendEvent(MESSAGES.WONDER_SENDING, wonders[i]);
         }
 
         // création des cartes initiales
-        Hand[] hands = new Hand[CONFIG.NB_JOUEURS];
+        Hand[] hands = new Hand[CONFIG.NB_PLAYERS];
         
-        for(int i = 0; i < CONFIG.NB_JOUEURS; i++) {
+        for(int i = 0; i < CONFIG.NB_PLAYERS; i++) {
             hands[i] = new Hand();
             for(int j = 0 ; j < 8; j++) {
-                hands[i].ajouterCarte(hands[i].getCards().get(j));
+                hands[i].addCard(hands[i].getCards().get(j));
                 
             }
             // association main initiale - joueur
             participants.get(i).setHand(hands[i]);
             // envoi de la main au joueur
-            participants.get(i).getSocket().sendEvent(MESSAGES.ENVOI_DE_MAIN, hands[i]);
+            participants.get(i).getSocket().sendEvent(MESSAGES.HAND_SENDING, hands[i]);
 
         }
 
@@ -132,6 +135,10 @@ public class Partie {
 
     private boolean isEveryoneCheckIn() {
         boolean resultat = true;
+        if (participants.size() != CONFIG.NB_PLAYERS) {
+            return false;
+        }
+
         for(Participant p : participants) {
             // pas nom, pas identifié
             if (p.getName() == null) {
@@ -174,22 +181,28 @@ public class Partie {
         }
     }
 
+    private void launchNewTurn() {
+        for (Participant p : participants) {
+            p.getSocket().sendEvent(MESSAGES.YOUR_TURN, p.getHand());
+        }
+    }
+
     public void start() {
-        // démarrage du serveur
-        serveur.start();
+        // démarrage du server
+        server.start();
     }
 
 
     /**
      * méthode pour retrouver un participant à partir de la socket cliente (disponible à la réception d'un message)
-     * @param socketIOClient le client qui vient d'envoyer un message au serveur
+     * @param socketIOClient le client qui vient d'envoyer un message au server
      * @return le Participant correspondant à la socketIOClient
      */
     private Participant findParticipant(SocketIOClient socketIOClient) {
         Participant p = null;
 
         for(Participant part : participants) {
-            if (part.getSocket().equals(socketIOClient)) {
+            if (part != null && part.getSocket().equals(socketIOClient)) {
                 p = part;
                 break;
             }
@@ -200,7 +213,7 @@ public class Partie {
 
 
     public static final void main(String  [] args) {
-        Partie p = new Partie();
+        Game p = new Game();
         p.start();
     }
 }

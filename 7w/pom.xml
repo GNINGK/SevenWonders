@@ -31,7 +31,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>lanceur.Lanceur</mainClass>
+                    <mainClass>launcher.Launcher</mainClass>
                 </configuration>
             </plugin>
 

@@ -37,13 +37,13 @@ public class Player {
                 public void call(Object... objects) {
                     System.out.println(getName() + " > connecte");
                     System.out.println(getName()+" > envoi de mon name");
-                    connexion.emit(MESSAGES.MON_NOM, getName());
+                    connexion.emit(MESSAGES.MY_NAME, getName());
                 }
             });
 
             
             // réception de la wonder
-            connexion.on(MESSAGES.ENVOI_DE_MERVEILLE, new Emitter.Listener() {
+            connexion.on(MESSAGES.WONDER_SENDING, new Emitter.Listener() {
                 @Override
                 public void call(Object... objects) {
                     // réception du JSON
@@ -52,9 +52,9 @@ public class Player {
                         // conversion du JSON en Wonder
                         String n = wonderJSON.getString("name");
                         // les merveilles ont toutes une ressource vide, pour illustrer avec un objet avec plus qu'une seule propriété
-                        String ressource = wonderJSON.getString("ressource");
+                        String ressource = wonderJSON.getString("resource");
                         Wonder m = new Wonder(n);
-                        m.setRessource(ressource);
+                        m.setResource(ressource);
 
                         // mémorisation de la wonder
                         System.out.println(name +" > j'ai recu "+m);
@@ -66,7 +66,7 @@ public class Player {
             });
 
             // réception de la main
-            connexion.on(MESSAGES.ENVOI_DE_MAIN, new Emitter.Listener() {
+            connexion.on(MESSAGES.HAND_SENDING, new Emitter.Listener() {
                 @Override
                 public void call(Object... objects) {
                     // réception de l'objet JSON : une main
@@ -79,7 +79,7 @@ public class Player {
                         for(int j = 0 ; j < cartesJSON.length(); j++) {
                             JSONObject carteJSON = (JSONObject) cartesJSON.get(j);
                             Card c = new Card(carteJSON.getString("name"));
-                            m.ajouterCarte(c);
+                            m.addCard(c);
                         }
                         System.out.println(name +" > I received " + m);
 
@@ -91,8 +91,26 @@ public class Player {
                     }
                 }
             });
-        } catch (
-        URISyntaxException e) {
+            connexion.on(MESSAGES.YOUR_TURN, new Emitter.Listener() {
+                @Override
+                public void call(Object... objects) {
+                    JSONObject handJSON = (JSONObject)objects[0];
+                    try {
+                        Hand m = new Hand();
+                        // la main ne contient qu'une liste de carte, c'est un JSONArray
+                        JSONArray cartesJSON = handJSON.getJSONArray("cards");
+                        // on recrée chaque carte
+                        for (int j = 0; j < cartesJSON.length(); j++) {
+                            JSONObject carteJSON = (JSONObject) cartesJSON.get(j);
+                            Card c = new Card(carteJSON.getString("name"));
+                            m.addCard(c);
+                        }
+                        play(m);
+                    } catch (JSONException jse){}
+                }
+            });
+        }
+        catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
@@ -100,11 +118,11 @@ public class Player {
 
     private void play(Hand m) {
         Random r = new Random();
-        int cardIndex = r.nextInt(5);
-        JSONObject pieceJointe = new JSONObject(m.getCards().get(cardIndex)) ;
+        int cardIndex = r.nextInt(m.getCards().size());
+        JSONObject cardToPlay = new JSONObject(m.getCards().get(cardIndex)) ;
 
-        System.out.println(name + " > Play "+m.getCards().get(cardIndex));
-        connexion.emit(MESSAGES.JE_JOUE, pieceJointe);
+        System.out.println(name + " > Play " + cardToPlay.toString());
+        connexion.emit(MESSAGES.IM_PLAYING, cardToPlay);
     }
 
     public void start() {

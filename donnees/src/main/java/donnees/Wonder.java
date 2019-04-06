@@ -2,26 +2,26 @@ package donnees;
 
 public class Wonder {
     private String name;
-    private String ressource;
+    private String resource;
 
-    public String getRessource() {
-        return ressource;
+
+    public Wonder() { setResource("-empty-");}
+    public Wonder(String n) { this(); setName(n);}
+
+
+    public String getResource() {
+        return resource;
     }
-
-    public void setRessource(String ressource) {
-        this.ressource = ressource;
+    public void setResource(String resource) {
+        this.resource = resource;
     }
 
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
-    public Wonder() { setRessource("-vide-");}
-    public Wonder(String n) { this(); setName(n);}
 
 
     public String toString() {
