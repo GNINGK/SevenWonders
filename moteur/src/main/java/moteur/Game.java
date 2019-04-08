@@ -60,6 +60,7 @@ public class Game {
 
                     if (isEveryoneCheckIn()) {
                         startGame();
+                        launchNewTurn();
                     }
                 }
             }

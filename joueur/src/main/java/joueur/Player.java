@@ -83,9 +83,6 @@ public class Player {
                         }
                         System.out.println(name +" > I received " + m);
 
-                        // le joueur a reçu, il joue
-                        play(m);
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
